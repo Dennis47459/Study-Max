@@ -1,24 +1,25 @@
-
 {
-  "name": "StudyMax",
-  "short_name": "StudyMax",
-  "description": "Aplicação de estudos para alunos do ensino médio.",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1565c0",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+"id": "studymax",
+"name": "StudyMax",
+"short_name": "StudyMax",
+"description": "Aprende e estuda várias disciplinas do ensino médio.",
+"lang": "pt",
+"start_url": "./",
+"scope": "./",
+"display": "standalone",
+"orientation": "portrait",
+"background_color": "#ffffff",
+"theme_color": "#2563eb",
+"icons": [
+{
+"src": "icon-192.png",
+"sizes": "192x192",
+"type": "image/png"
+},
+{
+"src": "icon-512.png",
+"sizes": "512x512",
+"type": "image/png"
+}
+]
 }
