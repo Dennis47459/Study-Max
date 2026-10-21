@@ -1,28 +1,244 @@
 
-{
-  "id": "./",
-  "name": "StudyMax",
-  "short_name": "StudyMax",
-  "description": "O teu espaço para estudar, aprender e crescer.",
-  "lang": "pt",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#2563eb",
-  "background_color": "#ffffff",
-  "icons": [
-    {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id);
+
+  const classSelect = $("classSelect");
+  const subjectsBox = $("subjects");
+  const lessonPanel = $("lessonPanel");
+  const quizPanel = $("quizPanel");
+  const dailyBtn = $("dailyBtn");
+
+  if (!classSelect || !subjectsBox || !lessonPanel || !quizPanel) {
+    console.error("StudyMax: verifica os elementos do index.html.");
+    return;
+  }
+
+  const subjects = [
+    { name: "Matemática", icon: "➗", color: "#e8efff" },
+    { name: "Português", icon: "📖", color: "#fff0e5" },
+    { name: "Física", icon: "⚛️", color: "#e4f8f0" },
+    { name: "Química", icon: "🧪", color: "#f2e8ff" },
+    { name: "Biologia", icon: "🌱", color: "#e7f6df" },
+    { name: "Inglês", icon: "🌍", color: "#fff3c9" },
+    { name: "História", icon: "🏛️", color: "#fbe7e7" },
+    { name: "Geografia", icon: "🌍", color: "#e2f4ff" }
+  ];
+
+  const lessons = {
+    "Matemática": {
+      title: "Números e operações",
+      text: "A matemática ajuda-nos a resolver problemas do dia a dia.",
+      example: "Exemplo: 2x + 4 = 10. Subtraindo 4, temos 2x = 6. Logo, x = 3.",
+      question: "Quanto é 3 × 4?",
+      answers: ["7", "12", "16"],
+      correct: 1
     },
-    {
-      "src": "./icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+    "Português": {
+      title: "Classes de palavras",
+      text: "Os substantivos dão nomes a pessoas, animais, lugares e coisas.",
+      example: "Exemplo: estudante, escola, livro.",
+      question: "Qual destas palavras é um substantivo?",
+      answers: ["Correr", "Bonito", "Escola"],
+      correct: 2
+    },
+    "Física": {
+      title: "Movimento",
+      text: "A velocidade média corresponde à distância percorrida dividida pelo tempo.",
+      example: "Fórmula: velocidade média = distância ÷ tempo.",
+      question: "Um carro percorre 100 km em 2 horas. Qual é a velocidade média?",
+      answers: ["50 km/h", "100 km/h", "200 km/h"],
+      correct: 0
+    },
+    "Química": {
+      title: "A matéria",
+      text: "A matéria é tudo aquilo que tem massa e ocupa espaço.",
+      example: "Os estados físicos mais conhecidos são sólido, líquido e gasoso.",
+      question: "Qual é um estado físico da matéria?",
+      answers: ["Energia", "Líquido", "Velocidade"],
+      correct: 1
+    },
+    "Biologia": {
+      title: "Os seres vivos",
+      text: "As células são unidades fundamentais dos seres vivos.",
+      example: "O corpo humano é formado por muitos tipos de células.",
+      question: "Qual é a unidade básica dos seres vivos?",
+      answers: ["A célula", "A nuvem", "A rocha"],
+      correct: 0
+    },
+    "Inglês": {
+      title: "Basic English",
+      text: "Aprende algumas palavras essenciais em inglês.",
+      example: "Hello = Olá. Book = Livro. School = Escola.",
+      question: 'O que significa "Book"?',
+      answers: ["Casa", "Livro", "Água"],
+      correct: 1
+    },
+    "História": {
+      title: "O estudo da História",
+      text: "A História estuda as sociedades humanas ao longo do tempo.",
+      example: "As fontes históricas podem incluir documentos, objetos e testemunhos.",
+      question: "O que estuda a História?",
+      answers: ["Apenas os planetas", "As sociedades humanas no tempo", "Apenas os números"],
+      correct: 1
+    },
+    "Geografia": {
+      title: "O planeta Terra",
+      text: "A Geografia estuda os lugares, as paisagens e a relação entre as pessoas e o ambiente.",
+      example: "Angola situa-se no continente africano.",
+      question: "Em que continente fica Angola?",
+      answers: ["Ásia", "África", "Europa"],
+      correct: 1
     }
-  ]
-}
+  };
+
+  let points = Number(localStorage.getItem("studymax-points") || 0);
+  let completed = Number(localStorage.getItem("studymax-completed") || 0);
+  let best = Number(localStorage.getItem("studymax-best") || 0);
+
+  function updateStats() {
+    if ($("points")) $("points").textContent = points;
+    if ($("completed")) $("completed").textContent = completed;
+    if ($("best")) $("best").textContent = completed ? best + "%" : "—";
+
+    localStorage.setItem("studymax-points", points);
+    localStorage.setItem("studymax-completed", completed);
+    localStorage.setItem("studymax-best", best);
+  }
+
+  function showLesson(name) {
+    const lesson = lessons[name];
+    if (!lesson) return;
+
+    lessonPanel.classList.remove("hidden");
+    quizPanel.classList.add("hidden");
+
+    lessonPanel.innerHTML = `
+      <h2>${name}</h2>
+      <h3>${lesson.title}</h3>
+      <p>${lesson.text}</p>
+      <p><strong>${lesson.example}</strong></p>
+      <button type="button" class="primary" id="lessonQuizBtn">
+        Fazer exercício →
+      </button>
+    `;
+
+    $("lessonQuizBtn").addEventListener("click", () => showQuiz(name));
+    lessonPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function showQuiz(name) {
+    const lesson = lessons[name];
+    if (!lesson) return;
+
+    quizPanel.classList.remove("hidden");
+    quizPanel.innerHTML = `
+      <h2>Mini-teste: ${name}</h2>
+      <p>${lesson.question}</p>
+      <div class="quiz-answers">
+        ${lesson.answers.map((answer, index) => `
+          <button type="button" data-answer="${index}">
+            ${answer}
+          </button>
+        `).join("")}
+      </div>
+      <p id="quiz-result" aria-live="polite"></p>
+    `;
+
+    quizPanel.querySelectorAll("[data-answer]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (quizPanel.dataset.answered === "yes") return;
+        quizPanel.dataset.answered = "yes";
+
+        const correct = Number(button.dataset.answer) === lesson.correct;
+        const result = $("quiz-result");
+
+        quizPanel.querySelectorAll("[data-answer]").forEach((b) => {
+          b.disabled = true;
+        });
+
+        if (correct) {
+          points += 10;
+          completed += 1;
+          best = Math.max(best, 100);
+          result.textContent = "🎉 Correto! Ganhaste 10 pontos.";
+        } else {
+          result.textContent =
+            "Ainda não! Resposta correta: " +
+            lesson.answers[lesson.correct] + ". Continua a aprender!";
+        }
+
+        updateStats();
+      });
+    });
+
+    quizPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function renderSubjects() {
+    subjectsBox.innerHTML = "";
+
+    subjects.forEach((subject) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "subject-card";
+      button.style.backgroundColor = subject.color;
+      button.innerHTML = `
+        <span class="subject-icon">${subject.icon}</span>
+        <strong>${subject.name}</strong>
+        <span>Estudar agora →</span>
+      `;
+
+      button.addEventListener("click", () => showLesson(subject.name));
+      subjectsBox.appendChild(button);
+    });
+  }
+
+  classSelect.addEventListener("change", () => {
+    lessonPanel.classList.add("hidden");
+    quizPanel.classList.add("hidden");
+  });
+
+  if (dailyBtn) {
+    dailyBtn.addEventListener("click", () => {
+      const selected = subjects[Math.floor(Math.random() * subjects.length)];
+      showQuiz(selected.name);
+    });
+  }
+
+  document.querySelectorAll("[data-scroll]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.scroll;
+
+      if (target === "top") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (target === "subjects") {
+        subjectsBox.scrollIntoView({ behavior: "smooth" });
+      } else if (target === "daily") {
+        if (dailyBtn) dailyBtn.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  });
+
+  if ($("progressBtn")) {
+    $("progressBtn").addEventListener("click", () => {
+      alert(
+        "📈 O teu progresso\n\n" +
+        "Pontos: " + points + "\n" +
+        "Testes concluídos: " + completed + "\n" +
+        "Melhor resultado: " + (completed ? best + "%" : "Ainda sem testes")
+      );
+    });
+  }
+
+  if ($("profileBtn")) {
+    $("profileBtn").addEventListener("click", () => {
+      const student = prompt("Como te chamas?", "");
+      if (student && student.trim()) {
+        alert("Bem-vindo(a) ao StudyMax, " + student.trim() + "!");
+      }
+    });
+  }
+
+  renderSubjects();
+  updateStats();
+});
