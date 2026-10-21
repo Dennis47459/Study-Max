@@ -1,4 +1,4 @@
-
+manifest.json.
 document.addEventListener("DOMContentLoaded", () => {
   const $ = (id) => document.getElementById(id);
 
